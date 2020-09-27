@@ -1,0 +1,84 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+Importando data
+
+
+```{r}
+
+#2
+
+library(rio)
+
+linkAlfa = "https://github.com/omarbal99/ProyectoVariable-2020-2/raw/master/DataAlfabetizacionTotal%20Sucia.xlsx"
+
+DataAlfa = import(linkAlfa)
+
+
+```
+
+
+Limpieza
+
+```{r}
+
+#Borrando columnas 
+
+DataAlfa$`Series Name` =NULL
+DataAlfa$`Series Code` =NULL
+DataAlfa$`Country Name`=NULL
+
+```
+
+```{r}
+#Cambiando el nombre de las columnas
+
+names(DataAlfa) = c("Pais", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019" )
+```
+
+
+```{r}
+#Eliminando filas vacías
+
+DataAlfa <- DataAlfa[-c(218:222), ]
+
+```
+
+```{r}
+
+str(DataAlfa)
+
+#Convirtiendo a numérica
+
+DataAlfa[2:12]=lapply(DataAlfa[2:12], as.numeric)
+
+
+
+```
+```{r}
+#Verificando valores perdidos
+
+DataAlfa[!complete.cases(DataAlfa),]
+
+
+```
+
+```{r}
+#Eliminar columna que no necesitaremos
+
+DataAlfa$"2019" = NULL
+
+```
+
+```{r}
+
+#Guardando la data limpia
+
+write.csv(DataAlfa, "Alfabetizacion mundial.csv", row.names=F)
+
+
+```
+
