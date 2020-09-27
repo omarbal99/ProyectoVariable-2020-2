@@ -1,0 +1,157 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Justificación:
+
+La importancia de la variable "Brecha_Edu" (Brecha de género en educación superior) yace en que, dicha variable, juega un rol importante en la participación política de la mujer, en el sentido de que, una baja tasa de mujeres con educación superior (con respecto a los varones)  condicionaría la participación política de la mujer, teniendo en cuenta varios paises alrededor del mundo establecen -implícitamente o explicitamente- tener estudios superiores como requisito para poder representar políticamente en el parlamento.
+
+
+
+```{r}
+
+library(rio)
+
+linkEdu1 = "https://github.com/omarbal99/ProyectoVariable-2020-2/raw/master/DataEducacionSuperiorFem%20Sucia.xlsx"
+
+DataEduF = import(linkEdu1)
+
+linkEdu2 = "https://github.com/omarbal99/ProyectoVariable-2020-2/raw/master/DataEducacionSuperiorM%20Sucia.xlsx"
+
+DataEduM = import(linkEdu2)
+
+```
+
+Limpieza Base de Datos Femenina
+
+```{r}
+
+#Borrando columnas 
+
+DataEduF$`Series Name` =NULL
+DataEduF$`Series Code` =NULL
+DataEduF$`Country Name`=NULL
+
+
+
+```
+
+```{r}
+
+#Cambiando el nombre de las columnas
+
+names(DataEduF) = c("Pais", "2009F", "2010F", "2011F", "2012F", "2013F", "2014F", "2015F", "2016F", "2017F", "2018F", "2019F" )
+
+
+```
+
+```{r}
+#Eliminando filas vacías
+
+DataEduF <- DataEduF[-c(218:222), ]
+
+
+```
+
+```{r}
+
+str(DataEduF)
+
+#Convirtiendo a numérica
+
+DataEduF[2:12]=lapply(DataEduF[2:12], as.numeric)
+
+
+```
+
+```{r}
+
+#Verificando valores perdidos
+
+DataEduF[!complete.cases(DataEduF),]
+
+
+```
+
+```{r}
+#Eliminar columna que no necesitaremos
+
+DataEduF$"2019F" = NULL
+
+
+```
+
+
+
+Limpieza base de datos Masculina
+
+```{r}
+#Borrando columnas 
+
+DataEduM$`Series Name` =NULL
+DataEduM$`Series Code` =NULL
+DataEduM$`Country Name`=NULL
+
+```
+
+```{r}
+#Cambiando el nombre de las columnas
+
+names(DataEduM) = c("Pais", "2009M", "2010M", "2011M", "2012M", "2013M", "2014M", "2015M", "2016M", "2017M", "2018M", "2019M" )
+
+
+```
+
+```{r}
+#Eliminando filas vacías
+
+DataEduM <- DataEduM[-c(218:222), ]
+
+
+```
+
+```{r}
+
+str(DataEduF)
+
+#Convirtiendo a numérica
+
+DataEduM[2:12]=lapply(DataEduM[2:12], as.numeric)
+
+
+```
+
+```{r}
+#Verificando valores perdidos
+
+DataEduM[!complete.cases(DataEduM),]
+```
+
+```{r}
+#Eliminar columna que no necesitaremos
+
+DataEduM$"2019M" = NULL
+
+
+```
+
+Merge de ambas base de datos
+
+```{r}
+Brecha_Edu = merge(DataEduF,DataEduM, by.x = "Pais", by.y = "Pais")
+
+```
+
+
+```{r}
+
+#Guardando la data limpia
+
+write.csv(Brecha_Edu, "Brecha Educacion Superior.csv", row.names=F)
+
+
+```
+
+
+
+
