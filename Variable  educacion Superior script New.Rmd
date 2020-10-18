@@ -1,0 +1,233 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Justificación:
+
+La importancia de la variable "Brecha_Edu" (Brecha de género en educación superior) yace en que, dicha variable, juega un rol importante en la participación política de la mujer, en el sentido de que, una baja tasa de mujeres con educación superior (con respecto a los varones)  condicionaría la participación política de la mujer, teniendo en cuenta varios paises alrededor del mundo establecen -implícitamente o explicitamente- tener estudios superiores como requisito para poder representar políticamente en el parlamento.
+
+
+
+```{r}
+
+library(rio)
+
+linkEdu1 = "https://github.com/omarbal99/ProyectoVariable-2020-2/raw/master/DataEducacionSuperiorFem%20Sucia.xlsx"
+
+DataEduF = import(linkEdu1)
+
+linkEdu2 = "https://github.com/omarbal99/ProyectoVariable-2020-2/raw/master/DataEducacionSuperiorM%20Sucia.xlsx"
+
+DataEduM = import(linkEdu2)
+
+```
+
+Limpieza Base de Datos Femenina
+
+```{r}
+
+#Borrando columnas 
+
+DataEduF$`Series Name` =NULL
+DataEduF$`Series Code` =NULL
+DataEduF$`Country Name`=NULL
+
+
+
+```
+
+```{r}
+
+#Cambiando el nombre de las columnas
+
+names(DataEduF) = c("Pais", "2009F", "2010F", "2011F", "2012F", "2013F", "2014F", "2015F", "2016F", "2017F", "2018F", "2019F" )
+
+
+```
+
+```{r}
+#Eliminando filas vacías
+
+DataEduF <- DataEduF[-c(218:222), ]
+
+
+```
+
+```{r}
+
+str(DataEduF)
+
+#Convirtiendo a numérica
+
+DataEduF[2:12]=lapply(DataEduF[2:12], as.numeric)
+
+
+```
+
+```{r}
+
+#Verificando valores perdidos
+
+DataEduF[!complete.cases(DataEduF),]
+
+
+#Verificar qué columna tiene mas NA's
+
+
+sum(is.na(DataEduF$"2009F"))
+sum(is.na(DataEduF$"2010F"))
+sum(is.na(DataEduF$"2011F"))
+sum(is.na(DataEduF$"2012F"))
+sum(is.na(DataEduF$"2013F"))
+sum(is.na(DataEduF$"2014F"))
+sum(is.na(DataEduF$"2015F"))
+sum(is.na(DataEduF$"2016F"))
+sum(is.na(DataEduF$"2017F"))
+sum(is.na(DataEduF$"2018F"))
+
+```
+
+```{r}
+#Promedio Mujeres
+
+DataEduF$'Promedio Educación 2009-2019'=rowMeans(DataEduF[,c(2:12)], na.rm = TRUE)
+
+
+```
+
+```{r}
+DataEduF$`Promedio Educación 2009-2019`=gsub("NaN", NA, DataEduF$`Promedio Educación 2009-2019`)
+```
+
+```{r}
+DataEduF[,c(2:12)]=NULL
+```
+
+```{r}
+#Borramos NA
+DataEduF=na.omit(DataEduF)
+```
+
+```{r}
+DataEduF$`Promedio Educación 2009-2019`=as.numeric(DataEduF$`Promedio Educación 2009-2019`)
+
+```
+
+
+
+```{r}
+#Redondeamos
+DataEduF$`Promedio Educación 2009-2019`=round(DataEduF$`Promedio Educación 2009-2019`,1)
+```
+
+```{r}
+DataEduF$Pais=trimws(DataEduF$Pais,whitespace = "[\\h\\v]")
+```
+
+
+*HASTA AQUI FUE MODIFICADO*
+Limpieza base de datos Masculina
+
+
+```{r}
+#Borrando columnas 
+
+
+
+
+DataEduM$`Series Name` =NULL
+DataEduM$`Series Code` =NULL
+DataEduM$`Country Name`=NULL
+
+```
+
+```{r}
+#Cambiando el nombre de las columnas
+
+names(DataEduM) = c("Pais", "2009M", "2010M", "2011M", "2012M", "2013M", "2014M", "2015M", "2016M", "2017M", "2018M", "2019M" )
+
+
+```
+
+```{r}
+#Eliminando filas vacías
+
+DataEduM <- DataEduM[-c(218:222), ]
+
+
+```
+
+```{r}
+
+str(DataEduM)
+
+#Convirtiendo a numérica
+
+DataEduM[2:12]=lapply(DataEduM[2:12], as.numeric)
+
+
+```
+
+```{r}
+#Verificando valores perdidos
+
+DataEduM[!complete.cases(DataEduM),]
+
+
+#Verificar qué columna tiene mas NA's
+
+sum(is.na(DataEduM$"2009M"))
+sum(is.na(DataEduM$"2010M"))
+sum(is.na(DataEduM$"2011M"))
+sum(is.na(DataEduM$"2012M"))
+sum(is.na(DataEduM$"2013M"))
+sum(is.na(DataEduM$"2014M"))
+sum(is.na(DataEduM$"2015M"))
+sum(is.na(DataEduM$"2016M"))
+sum(is.na(DataEduM$"2017M"))
+sum(is.na(DataEduM$"2018M"))
+
+
+
+
+```
+
+```{r}
+#Eliminar columna que no necesitaremos
+
+
+DataEduM$"2009M"= NULL
+DataEduM$"2010M"=NULL
+DataEduM[,c(5:12)]=NULL
+
+DataEduM = na.omit(DataEduM)
+
+DataEduM$"2012M"=NULL
+DataEduM$"2013M"=NULL
+
+
+```
+
+Merge de ambas base de datos
+
+```{r}
+Brecha_Edu = merge(DataEduF,DataEduM, by.x = "Pais", by.y = "Pais")
+
+Brecha_Edu$'Mujeres'= rowMeans (Brecha_Edu[ ,2:4])
+
+Brecha_Edu$'Hombres'= rowMeans (Brecha_Edu[ ,5:7])
+
+
+```
+
+```{r}
+Brecha_Edu[,c(2:7)]=NULL
+```
+
+```{r}
+names(Brecha_Edu) = c("Pais", "EduSupFem", "EduSupMasc")
+Brecha_Edu$Pais=trimws(Brecha_Edu$Pais,whitespace = "[\\h\\v]")
+```
+
+
+

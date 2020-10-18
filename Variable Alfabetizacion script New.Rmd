@@ -1,0 +1,137 @@
+---
+
+---
+Justificación:
+
+La importancia de la variable "Alfabetización" yace en que, dicha variable, juega un rol importante en la participación política de la mujer, en el sentido de que, una baja tasa de alfabetización condicionaría la participación política de la mujer, teniendo en cuenta varios paises alrededor del mundo establece, como mínimo, requisitos básicos el saber leer y escribir, para poder representar en el congreso 
+
+
+La importancia de la variable “tasa de pobreza mundial” radica en la influencia que ejerce en condicionar la participación política de las mujeres, en tanto que, las priva de poder participar en la elección de cargos públicos. Se infiere que en los países con una tasa mayor de pobreza, la participación de la mujer en elecciones  de cargos públicos, se ve condicionada, por ende, disminuye,  debido a la falta de recursos económicos que se requiere para poder ejecutar las campañas.
+
+
+
+Importando data
+
+
+```{r}
+
+#2
+
+library(rio)
+
+linkAlfa = "https://github.com/omarbal99/ProyectoVariable-2020-2/raw/master/DataAlfabetizacionTotal%20Sucia.xlsx"
+
+DataAlfa = import(linkAlfa)
+
+
+```
+
+
+Limpieza
+
+```{r}
+
+#Borrando columnas 
+
+DataAlfa$`Series Name` =NULL
+DataAlfa$`Series Code` =NULL
+DataAlfa$`Country Name`=NULL
+
+```
+
+```{r}
+#Cambiando el nombre de las columnas
+
+names(DataAlfa) = c("Pais", "2009F", "2010F", "2011F", "2012F", "2013F", "2014F", "2015F", "2016F", "2017F", "2018F", "2019F" )
+```
+
+
+```{r}
+#Eliminando filas vacías
+
+DataAlfa <- DataAlfa[-c(218:222), ]
+
+```
+
+```{r}
+
+str(DataAlfa)
+
+#Convirtiendo a numérica
+
+DataAlfa[2:12]=lapply(DataAlfa[2:12], as.numeric)
+
+
+
+```
+```{r}
+#Verificando valores perdidos
+
+DataAlfa[!complete.cases(DataAlfa),]
+
+
+
+#Verificar qué columna tiene mas NA's
+
+sum(is.na(DataAlfa$"2009F"))
+sum(is.na(DataAlfa$"2010F"))
+sum(is.na(DataAlfa$"2011F"))
+sum(is.na(DataAlfa$"2012F"))
+sum(is.na(DataAlfa$"2013F"))
+sum(is.na(DataAlfa$"2014F"))
+sum(is.na(DataAlfa$"2015F"))
+sum(is.na(DataAlfa$"2016F"))
+sum(is.na(DataAlfa$"2017F"))
+sum(is.na(DataAlfa$"2018F"))
+
+
+
+```
+
+```{r}
+#Promedio de variables
+
+DataAlfa$'Promedio Alfabetización 2009-2019'=rowMeans(DataAlfa[,c(2:12)], na.rm = TRUE)
+
+```
+
+
+
+```{r}
+DataAlfa$`Promedio Alfabetización 2009-2019`=gsub("NaN", NA, DataAlfa$`Promedio Alfabetización 2009-2019`)
+```
+
+```{r}
+DataAlfa[,c(2:12)]=NULL
+```
+
+```{r}
+#Borramos NA
+DataAlfa=na.omit(DataAlfa)
+```
+
+```{r}
+DataAlfa$`Promedio Alfabetización 2009-2019`=as.numeric(DataAlfa$`Promedio Alfabetización 2009-2019`)
+
+```
+
+
+```{r}
+#Redondeamos
+DataAlfa$`Promedio Alfabetización 2009-2019`=round(DataAlfa$`Promedio Alfabetización 2009-2019`,1)
+```
+
+```{r}
+DataAlfa$Pais=trimws(DataAlfa$Pais,whitespace = "[\\h\\v]")
+```
+
+
+
+
+#MERGE
+
+```{r}
+'educacionmujer'=merge(DataAlfa,DataEduF,by.x = 'Pais', by.y = 'Pais')
+```
+
+
